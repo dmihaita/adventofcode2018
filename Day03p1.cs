@@ -1,7 +1,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 
 public class Day03p1 {
@@ -74,4 +73,12 @@ public class SantaPatch{
     public int Y{get;internal set;}
     public int W{get;internal set;}
     public int H{get;internal set;}
+
+    public int X2{get{return X+W;}}
+    public int Y2{get{return Y+H;}}
+
+    public bool IntersectWith(SantaPatch sp){
+        return ((sp.X2 >= X && sp.X <= X2) &&
+                (sp.Y2 >= Y && sp.Y <= Y2));
+    }
 }

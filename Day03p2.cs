@@ -1,7 +1,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 
 public class Day03p2 {
@@ -13,26 +12,19 @@ public class Day03p2 {
     }
 
     public int Solve(){
-        int maxX = GetMaxX(), maxY = GetMaxY();
-        int[,] patch = new int[maxX,maxY];
-        foreach(int patchId in inputValues.Keys){
-            SantaPatch currentPatch = inputValues[patchId];
-            for(int i = currentPatch.X; i < currentPatch.X + currentPatch.W; i++){
-                for(int j = currentPatch.Y ; j < currentPatch.Y + currentPatch.H; j++){
-                    patch[i,j] = patch[i,j] > 0 ? -1 : patchId;
+        HashSet<int> dirtyPatches = new HashSet<int>();
+        var patches = inputValues.Keys.ToList().OrderBy(t => t).ToArray(); 
+        for(int i = 0; i < patches.Length - 1; i++){
+            for(int j = i + 1; j < patches.Length; j++){
+                int key1 = patches[i];
+                int key2 = patches[j];
+                if (inputValues[key1].IntersectWith(inputValues[key2])){
+                    dirtyPatches.Add(key1);
+                    dirtyPatches.Add(key2);
                 }
             }
         }
-        int resultPatch = 0;
-        for(int i = 0; i < maxX * maxY; i++){
-            int x = i / maxY;
-            int y = i % maxY;
-            if (patch[x,y] > 0){
-                resultPatch = patch[x,y];
-                break;
-            }
-        }
-        return resultPatch;
+        return patches.Except(dirtyPatches).FirstOrDefault();
     }
 
     private int GetMaxX()
