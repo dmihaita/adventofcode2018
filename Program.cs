@@ -7,8 +7,8 @@ namespace aoc2018
     {
         static void Main(string[] args)
         {
-            Day02p2 solver = new Day02p2(args[0]);
-            string result = solver.Solve();
+            Day03p2 solver = new Day03p2(args[0]);
+            int result = solver.Solve();
             Console.WriteLine($"Result is : {result}");
             // Suspend the screen.  
             System.Console.ReadLine();
