@@ -17,7 +17,9 @@ public class Day04p2 {
         var someProblem = Enumerable.Range(0, 59).Select(
             t => new {
                 minute = t ,
-                guardsCount = inputValues.Keys.Select(u => new{
+                guardsCount = inputValues.Keys.Select(
+                u => new
+                {
                     guard = u,
                     count = inputValues[u].Values.Sum(y => y.Count(x => x.IsInInterval(t)))
                 })
@@ -55,7 +57,7 @@ public class Day04p2 {
                     break;
                 case "wakes up" :
                     if (interval != null){
-                        interval.End = guardEvent.Item1.Minute;
+                        interval.End = guardEvent.Item1.Minute - 1;
                         if (!inputValues.ContainsKey(currentGuard))
                             inputValues[currentGuard] = new Dictionary<DateTime, List<SleepInterval>>();
                         if (!inputValues[currentGuard].ContainsKey(guardEvent.Item1.Date))
