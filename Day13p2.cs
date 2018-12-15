@@ -9,22 +9,20 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace aoc2018.Day13p1{
-    public class Day13p1 {
+namespace aoc2018.Day13p2 {
+    public class Day13p2 {
         private string inputPath;    
         private CityMap city;
-        public Day13p1(string inputPath){
+        public Day13p2(string inputPath){
             this.inputPath = inputPath;
             ReadInput();
         }
 
         public int Solve(){
-            Debug.Write(city.ToString());
-            Tuple<int, int> collisionPoint = null;
-            while((collisionPoint = city.Move()) == null){
-                Debug.Write(city.ToString());
-            }        
-            return 0;
+            while(city.CarsCount > 1){
+                city.Move();
+            }
+            return city.Cars.First().X;
         }
 
         private void ReadInput()
@@ -59,19 +57,36 @@ namespace aoc2018.Day13p1{
             CollectCars();
         }
 
+        public int CarsCount{
+            get {return cars.Count;}
+        }
+
+        public IEnumerable<Car> Cars{
+            get{return cars;}
+        }
+
         public Tuple<int,int> Move(){
             foreach(var car in cars.
                 OrderBy(t => t.X).
                 ThenBy(t => t.Y))
-            {            
+            {               
                 char nextChar = GetNextChar(car);
                 car.Advance(nextChar);
                 Tuple<int,int> collisionPoint;
                 if ((collisionPoint = IsCollision()) != null){
-                    return collisionPoint;
+                    MarkCarsAsCollided(collisionPoint);
                 }
             }
+            cars = cars.Where(t => !t.Collided).ToList();
             return null;
+        }
+
+        private void MarkCarsAsCollided(Tuple<int, int> collisionPoint)
+        {
+            foreach (var car in cars.Where(t => t.X == collisionPoint.Item1 &&
+                t.Y == collisionPoint.Item2)){
+                    car.Collided = true;
+                }
         }
 
         private Tuple<int, int> IsCollision()
@@ -150,6 +165,8 @@ namespace aoc2018.Day13p1{
         public int Y{get; internal set;}
         public Direction Direction{get; internal set;}
         public NextTurn NextTurn {get; internal set;}
+
+        public bool Collided {get;set;}
 
         public void Advance(char nextTile){
             int nextX = Direction == Direction.Top ? X - 1 :
