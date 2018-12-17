@@ -12,7 +12,6 @@ using System.Threading.Tasks;
 namespace aoc2018.Day14p2 {
     public class Day14p2 {
         private string inputPath;    
-        private int recipesCount;
         public Day14p2(string inputPath){
             this.inputPath = inputPath;
             ReadInput();
@@ -36,7 +35,6 @@ namespace aoc2018.Day14p2 {
 
         private void ReadInput()
         {
-            this.recipesCount = 607331;
         }
     }
 

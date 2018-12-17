@@ -8,7 +8,6 @@ using System.Text.RegularExpressions;
 
 public class Day09p1 {
     private string inputPath;
-    private int players, maxMarble;
     MarbleGame marbleGame;
     public Day09p1(string inputPath){
         this.inputPath = inputPath;
