@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 namespace aoc2018.Day15p1{
     public class Day15p1 {
         private string inputPath;
-        private GoblinMap map;    
+        private GoblinMap map;
         public Day15p1(string inputPath){
             this.inputPath = inputPath;
             ReadInput();
@@ -47,23 +47,32 @@ namespace aoc2018.Day15p1{
     }
 
     class GoblinMap{
+        private const int INITIAL_POWER = 200;
         char[,] _map;
         int currentIteration;
+        Dictionary<ValueTuple<int, int, char>, int> attackingUnits;
         public GoblinMap(char[,] map){
             _map = map;
             currentIteration = 0;
+            attackingUnits = new Dictionary<ValueTuple<int, int, char>, int>();
         }
 
         public void IterateRound(){
             IEnumerable<Tuple<char, int, int>> units = CollectUnits();
             foreach(var unit in units){
-                if (UnitHasAdjacentEnemies(unit)){
+                if (attackingUnits.ContainsKey(ValueTuple.Create(unit.Item2, unit.Item3, unit.Item1)))
+                {
                     Tuple<char, int, int> adjacentUnit = GetUnitAdjacentEnemyUnit(unit);
                     UnitAttackEnemy(unit, adjacentUnit);
                 }
                 else{
                     var nextPosition = ComputeNextUnitPosition(unit);
-                    MoveUnit(unit, nextPosition);
+                    if (nextPosition != null){
+                        MoveUnit(unit, nextPosition);
+                        if (UnitHasAdjacentEnemies(unit)){
+                            attackingUnits.Add(ValueTuple.Create(nextPosition.Item1, nextPosition.Item2, unit.Item1), INITIAL_POWER);
+                        }
+                    }
                 }
             }
             currentIteration++;
@@ -71,12 +80,30 @@ namespace aoc2018.Day15p1{
 
         private void MoveUnit(Tuple<char, int, int> unit, Tuple<int,int> nextPosition)
         {
-            
+            _map[unit.Item2, unit.Item3] = '.';
+            _map[nextPosition.Item1, nextPosition.Item2] = unit.Item1;
         }
 
         private Tuple<int, int> ComputeNextUnitPosition(Tuple<char, int, int> unit)
         {
-            return null;
+            var path = ComputeShortestPathToEnemy(unit);
+            if (path != null && path.Count() > 0){
+                return path.First();
+            }
+            else
+                return null;
+        }
+
+        IEnumerable<Tuple<int, int>> ComputeShortestPathToEnemy(Tuple<char, int, int> unit){
+            var graph = MapToGraph();
+            return null;// graph.shortest_path().Select(t => (t.Item2, t.Item3)).FirstOrDefault();
+        }
+
+        private Graph<ValueTuple<char, int, int>> MapToGraph()
+        {
+            Graph<ValueTuple<char, int, int>> graph = new Graph<(char, int, int)>();
+            return graph;
+            
         }
 
         private void UnitAttackEnemy(Tuple<char, int, int> unit, Tuple<char, int, int> adjacentUnit)
@@ -125,4 +152,74 @@ namespace aoc2018.Day15p1{
             return sb.ToString();
         }
     }
+
+    class Graph<T> where T: IComparable
+    {
+        Dictionary<T, Dictionary<T, int>> vertices = new Dictionary<T, Dictionary<T, int>>();
+
+        public void add_vertex(T name, Dictionary<T, int> edges)
+        {
+            vertices[name] = edges;
+        }
+
+        public List<T> shortest_path(T start, T finish)
+        {
+            var previous = new Dictionary<T, T>();
+            var distances = new Dictionary<T, int>();
+            var nodes = new List<T>();
+
+            List<T> path = null;
+
+            foreach (var vertex in vertices)
+            {
+                if (vertex.Key.CompareTo(start) == 0)
+                {
+                    distances[vertex.Key] = 0;
+                }
+                else
+                {
+                    distances[vertex.Key] = int.MaxValue;
+                }
+
+                nodes.Add(vertex.Key);
+            }
+
+            while (nodes.Count != 0)
+            {
+                nodes.Sort((x, y) => distances[x] - distances[y]);
+
+                var smallest = nodes[0];
+                nodes.Remove(smallest);
+
+                if (smallest.CompareTo(finish) == 0)
+                {
+                    path = new List<T>();
+                    while (previous.ContainsKey(smallest))
+                    {
+                        path.Add(smallest);
+                        smallest = previous[smallest];
+                    }
+
+                    break;
+                }
+
+                if (distances[smallest] == int.MaxValue)
+                {
+                    break;
+                }
+
+                foreach (var neighbor in vertices[smallest])
+                {
+                    var alt = distances[smallest] + neighbor.Value;
+                    if (alt < distances[neighbor.Key])
+                    {
+                        distances[neighbor.Key] = alt;
+                        previous[neighbor.Key] = smallest;
+                    }
+                }
+            }
+
+            return path;
+        }
+    }    
 }
